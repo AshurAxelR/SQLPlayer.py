@@ -1,0 +1,14 @@
+{
+	"local": {
+		"host": "localhost",
+		"user": "root",
+		"pwd": "",
+		"names": "utf8"
+	},
+	"remote": {
+		"host": "mysql.some-remote-host.org",
+		"user": "theuser",
+		"pwd": "passw0rd",
+		"names": "utf8"
+	}
+}

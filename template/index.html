@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SQLPlayer{{ ": {} / {}".format(db if db else "*", profile) if profile }}</title>
+<link rel="stylesheet" href="/static/sqlplayer.css" />
+</head>
+
+<script type="text/javascript">
+document.onkeydown = function(e) {
+	if(e.ctrlKey && e.keyCode==13) {
+		e.preventDefault();
+		document.getElementById("gobtn").click();
+	}
+}
+</script>
+
+<body>
+
+<form method="post">
+<h1>SQLPlayer</h1>
+
+<div id="dbhost">
+<input type="text" name="db" value="{{ db if db }}" size="30" placeholder="(database)" />
+<select name="profile">
+{% for p in profile_list %}
+<option value="{{ p }}" {{ "selected" if p==profile }}>{{ p }}</option>
+{% endfor %}
+</select>
+</div>
+
+<label for="sql">Query:</label><br/>
+<textarea id="sql" name="sql">{{ sql if sql }}</textarea>
+
+<div id="go"><span class="tip">Hotkey: Ctrl+Enter &nbsp;</span> <input id="gobtn" class="button" type="submit" value="Go" /></div>
+</form>
+
+{%- if error %}
+    <p class="info"><b>Error: </b>{{ error }}</p>
+{%- elif total>0 %}
+    <div id="data"><table>
+    <tr class="h">{% for col in cols %}<th>{{ col }}</th>{% endfor %}</tr>
+    {%- for row in rows %}
+        <tr>{% for v in row %}<td>{{ v|e }}</td>{% endfor %}</tr>
+    {%- endfor %}
+    </table></div>
+    <p class="info">{{ "Showing {} of {} records.".format(row_count, total) if total!=row_count else "{} records total.".format(total) }}</p>
+{%- else %}
+    <p class="info">No records returned.</p>
+{%- endif %}
+
+<p id="ver">SQLPlayer version {{ version }}</p>
+</body>
+</html>
