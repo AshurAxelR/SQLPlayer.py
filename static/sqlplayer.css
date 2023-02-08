@@ -94,3 +94,9 @@ tr:hover {
 tr.h {
 	background: none;
 }
+code {
+	font-family: Consolas, monospace;
+}
+.bin {
+	color: #bbb;
+}

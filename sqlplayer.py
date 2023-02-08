@@ -26,12 +26,18 @@ def process_query(cfg, db, sql):
     ) as connection:
         with connection.cursor() as cursor:
             cursor.execute(sql)
-            cols = [desc[0] for desc in cursor.description]
+            cols = [desc[0] for desc in (cursor.description or [])]
             rows = cursor.fetchall()
-            total = len(rows)
+            connection.commit()
+            total = cursor.rowcount
             if total>MAX_ROWS:
                 rows = rows[:MAX_ROWS]
-            return cols, rows, total
+            return {
+                'cols': cols,
+                'rows': rows,
+                'total': total,
+                'len_rows': len(rows),
+            }
 
 class SqlPlayer(object):
     def __init__(self):
@@ -61,11 +67,11 @@ class SqlPlayer(object):
         if not ip=='127.0.0.1':
             ctx['error'] = 'Not localhost'
         elif profile_cfg is None:
-            ctx['error'] = 'Unknown host profile'
+            if profile:
+                ctx['error'] = 'Unknown host profile'
         else:
             try:
-                ctx['cols'], ctx['rows'], ctx['total'] = process_query(profile_cfg, db=db, sql=sql)
-                ctx['row_count'] = len(ctx['rows'])
+                ctx |= process_query(profile_cfg, db=db, sql=sql)
             except SqlError as e:
                 ctx['error'] = str(e)
 
