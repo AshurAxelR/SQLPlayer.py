@@ -1,5 +1,6 @@
 profiles.json
 
+.env
 .idea/
 
 # Byte-compiled / optimized / DLL files

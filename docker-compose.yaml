@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+    # mysql service won't work:
+    # 2003: Can't connect to MySQL server on '127.0.0.1:3306' (111 Connection refused)
+            
+    init:
+        image: python:3.10
+        volumes:
+            - pip-volume:/usr/local/lib/python3.10/site-packages
+            - .:/app
+        working_dir: /app
+        command: pip install -r requirements.txt
+
+    cherrypy:
+        image: python:3.10
+        restart: always
+        ports:
+            - '8080:8080'
+        volumes:
+            - pip-volume:/usr/local/lib/python3.10/site-packages
+            - .:/app
+        working_dir: /app
+        command: python3 sqlplayer.py
+        depends_on:
+            init:
+                condition: service_completed_successfully
+            mysql:
+                condition: service_started
+                
+volumes:
+    pip-volume:
