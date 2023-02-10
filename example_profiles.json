@@ -1,14 +1,22 @@
 {
-	"local": {
-		"host": "localhost",
+	"mysql-local": {
+		"host": "127.0.0.1",
 		"user": "root",
-		"pwd": "",
+		"pwd": "password",
 		"names": "utf8"
 	},
-	"remote": {
-		"host": "mysql.some-remote-host.org",
-		"user": "theuser",
-		"pwd": "passw0rd",
-		"names": "utf8"
+	"mysql-docker": {
+		"host": "mysql",
+		"user": "root",
+		"pwd": "password",
+		"engine": "mysql",
+		"allowed": ["127.0.0.1", "172.*.0.1", "192.168.*.1"]
+	},
+	"postgres-docker": {
+		"host": "postgres",
+		"user": "local",
+		"pwd": "password",
+		"engine": "postgres",
+		"allowed": ["127.0.0.1", "172.*.0.1", "192.168.*.1"]
 	}
 }

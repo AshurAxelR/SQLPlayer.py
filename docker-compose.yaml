@@ -1,11 +1,43 @@
+# Example docker-compose file demonstrates setting up a cherrypy server with
+# MySQL and PostgreSQL databases.
+#
+# You usually don't need both, so remove unnecessary service and
+# cherrypy.depends_on section. Clean-up requirements.txt respectively:
+# - mysql-connector-python is required for MySQL connection
+# - psycopg2 is required for PostgreSQL connection
+#
+# Edit .env file to set python and database versions as well as users and
+# passwords.
+#
+# pip-volume is used for persistent python environment. Removing will make a
+# stateless container, which will download and install python packages on every
+# restart.
+
 version: '3.3'
 
 services:
-    # mysql service won't work:
-    # 2003: Can't connect to MySQL server on '127.0.0.1:3306' (111 Connection refused)
-            
+    mysql:
+        image: mysql:${_MYSQL_VER}
+        restart: always
+        environment:
+            MYSQL_USER: ${_MYSQL_USER}
+            MYSQL_PASSWORD: ${_MYSQL_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${_MYSQL_ROOT_PASSWORD}
+        volumes:
+            - mysql-db-volume:/var/lib/mysql
+
+    postgres:
+        image: postgres:${_POSTGRES_VER}
+        restart: always
+        environment:
+            POSTGRES_USER: ${_POSTGRES_USER}
+            POSTGRES_PASSWORD: ${_POSTGRES_PASSWORD}
+            POSTGRES_DB: ${_POSTGRES_DB}
+        volumes:
+            - postgres-db-volume:/var/lib/postgresql/data
+
     init:
-        image: python:3.10
+        image: python:${_PYTHON_VER}
         volumes:
             - pip-volume:/usr/local/lib/python3.10/site-packages
             - .:/app
@@ -13,18 +45,24 @@ services:
         command: pip install -r requirements.txt
 
     cherrypy:
-        image: python:3.10
+        image: python:${_PYTHON_VER}
         restart: always
         ports:
             - '8080:8080'
         volumes:
-            - pip-volume:/usr/local/lib/python3.10/site-packages
+            - pip-volume:/usr/local/lib/python${_PYTHON_VER}/site-packages
             - .:/app
         working_dir: /app
-        command: python3 sqlplayer.py
+        command: python3 ${_APP_FILE}
         depends_on:
             init:
                 condition: service_completed_successfully
-                
+            mysql:
+                condition: service_started
+            postgres:
+                condition: service_started
+
 volumes:
     pip-volume:
+    postgres-db-volume:
+    mysql-db-volume:
